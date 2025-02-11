@@ -3,6 +3,7 @@ import { StatusCodes, ReasonPhrases } from "http-status-codes";
 class ErrorException extends Error {
   public statusCode: number;
   public reason: string;
+  public timestamp: Date;
 
   constructor(
     message: string,
@@ -12,6 +13,7 @@ class ErrorException extends Error {
     super(message);
     this.statusCode = statusCode;
     this.reason = reason;
+    this.timestamp = new Date();
     Error.captureStackTrace(this, this.constructor);
   }
 
@@ -20,6 +22,7 @@ class ErrorException extends Error {
       statusCode: this.statusCode,
       message: this.message,
       reason: this.reason,
+      timestamp: this.timestamp,
     };
   }
 }
