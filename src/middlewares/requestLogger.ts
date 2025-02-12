@@ -12,8 +12,8 @@ const requestLogger = expressWinston.logger({
       url: req.url,
       status: res.statusCode,
       userAgent: req.headers["user-agent"],
-      ip: req.ip,
-    }),
+      ip: req.ip
+    })
 });
 
 export default requestLogger;

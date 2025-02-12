@@ -22,7 +22,7 @@ class ErrorException extends Error {
       statusCode: this.statusCode,
       message: this.message,
       reason: this.reason,
-      timestamp: this.timestamp,
+      timestamp: this.timestamp
     };
   }
 }
