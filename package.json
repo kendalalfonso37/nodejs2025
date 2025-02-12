@@ -7,7 +7,9 @@
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/server.js",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "lint": "eslint -c eslint.config.mjs --ignore-pattern .gitignore src/**/*.{ts,tsx}",
+    "lint:fix": "eslint -c eslint.config.mjs --ignore-pattern .gitignore src/**/*.{ts,tsx} --fix"
   },
   "author": "",
   "license": "ISC",
@@ -21,14 +23,22 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.20.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/express-winston": "^4.0.2",
     "@types/http-status-codes": "^1.2.0",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.13.1",
+    "@typescript-eslint/eslint-plugin": "^8.24.0",
+    "@typescript-eslint/parser": "^8.24.0",
+    "eslint": "^9.20.1",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "globals": "^15.14.0",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.24.0"
   }
 }
