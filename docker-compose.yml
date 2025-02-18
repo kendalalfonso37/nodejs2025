@@ -1,0 +1,30 @@
+services:
+  mariadb:
+    # env_file: .env
+    image: mariadb:lts
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - storage:/var/lib/mysql
+    environment:
+      MARIADB_DATABASE: "mysql"
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "1"
+      MARIADB_USER: "root"
+      MARIADB_PASSWORD: ""
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: "mariadb"
+      PMA_USER: "root"
+      PMA_PASSWORD: ""
+      PMA_ARBITRARY: 1
+    ports:
+      - "8080:80"
+    depends_on:
+      - mariadb
+
+volumes:
+  storage:
