@@ -11,7 +11,15 @@
     "lint": "eslint -c eslint.config.mjs --ignore-pattern .gitignore src/**/*.{ts,tsx}",
     "lint:fix": "eslint -c eslint.config.mjs --ignore-pattern .gitignore src/**/*.{ts,tsx} --fix",
     "style-check": "prettier --ignore-path .gitignore --check .",
-    "style-fix": "prettier --ignore-path .gitignore --write ."
+    "style-fix": "prettier --ignore-path .gitignore --write .",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "entity:create": "npm run typeorm entity:create",
+    "migration:create": "npm run typeorm migration:create",
+    "migration:generate": "npm run typeorm -d src/app-data-source.ts migration:generate",
+    "migration:run": "npm run typeorm -d src/app-data-source.ts migration:run",
+    "migration:revert": "npm run typeorm -d src/app-data-source.ts migration:revert",
+    "schema:sync": "npm run typeorm -d src/app-data-source.ts schema:sync",
+    "schema:drop": "npm run typeorm -d src/app-data-source.ts schema:drop"
   },
   "author": "",
   "license": "ISC",
@@ -22,6 +30,9 @@
     "express-winston": "^4.2.0",
     "http-status-codes": "^2.3.0",
     "morgan": "^1.10.0",
+    "mysql": "^2.18.1",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.20",
     "winston": "^3.17.0"
   },
   "devDependencies": {

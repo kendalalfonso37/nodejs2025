@@ -6,6 +6,8 @@ import routes from "./routes";
 import errorHandler from "./middlewares/errorHandler";
 import requestLogger from "./middlewares/requestLogger";
 import { StatusCodes } from "http-status-codes";
+import { myDataSource } from "./app-data-source";
+import appLogger from "./utils/logger";
 
 dotenv.config();
 
@@ -22,6 +24,15 @@ class App {
   private config(): void {
     this.app.use(cors());
     this.app.use(express.json());
+    // Database
+    myDataSource
+      .initialize()
+      .then(() => {
+        appLogger.info("Connected to database");
+      })
+      .catch((err) => {
+        appLogger.error("Database connection failed", err);
+      });
   }
 
   private routes(): void {
