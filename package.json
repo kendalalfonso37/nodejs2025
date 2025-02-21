@@ -15,11 +15,11 @@
     "typeorm": "typeorm-ts-node-commonjs",
     "entity:create": "npm run typeorm entity:create",
     "migration:create": "npm run typeorm migration:create",
-    "migration:generate": "npm run typeorm -d src/app-data-source.ts migration:generate",
-    "migration:run": "npm run typeorm -d src/app-data-source.ts migration:run",
-    "migration:revert": "npm run typeorm -d src/app-data-source.ts migration:revert",
-    "schema:sync": "npm run typeorm -d src/app-data-source.ts schema:sync",
-    "schema:drop": "npm run typeorm -d src/app-data-source.ts schema:drop"
+    "migration:generate": "npm run typeorm -- -d src/app-data-source.ts migration:generate",
+    "migration:run": "npm run typeorm -- -d src/app-data-source.ts migration:run",
+    "migration:revert": "npm run typeorm -- -d src/app-data-source.ts migration:revert",
+    "schema:sync": "npm run typeorm -- -d src/app-data-source.ts schema:sync",
+    "schema:drop": "npm run typeorm -- -d src/app-data-source.ts schema:drop"
   },
   "author": "",
   "license": "ISC",
