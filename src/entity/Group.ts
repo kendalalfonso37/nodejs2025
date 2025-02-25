@@ -45,6 +45,6 @@ export class Group {
   })
   deletedAt: Date | undefined;
 
-  @OneToMany(() => Permission, (permission) => permission.groups)
-  permission: Permission | undefined;
+  @OneToMany(() => Permission, (permission) => permission.group)
+  permission: Permission[] | undefined;
 }

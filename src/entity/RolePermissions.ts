@@ -13,7 +13,7 @@ export class RolePermissions {
     onUpdate: "CASCADE"
   })
   @JoinColumn({ name: "role_id" })
-  roles: Role[] | undefined;
+  role: Role | undefined;
 
   @ManyToOne(() => Permission, (permission) => permission.rolePermissions, {
     nullable: false,
@@ -21,5 +21,5 @@ export class RolePermissions {
     onUpdate: "CASCADE"
   })
   @JoinColumn({ name: "permission_id" })
-  permissions: Role[] | undefined;
+  permission: Permission | undefined;
 }

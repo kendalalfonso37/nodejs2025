@@ -51,6 +51,6 @@ export class User {
   })
   deletedAt: Date | undefined;
 
-  @OneToMany(() => UserRoles, (userRoles) => userRoles.users)
-  userRoles: UserRoles | undefined;
+  @OneToMany(() => UserRoles, (userRoles) => userRoles.user)
+  userRoles: UserRoles[] | undefined;
 }

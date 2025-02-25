@@ -46,9 +46,9 @@ export class Role {
   })
   deletedAt: Date | undefined;
 
-  @OneToMany(() => UserRoles, (userRoles) => userRoles.users)
-  userRoles: UserRoles | undefined;
+  @OneToMany(() => UserRoles, (userRoles) => userRoles.role)
+  userRoles: UserRoles[] | undefined;
 
-  @OneToMany(() => RolePermissions, (rolePermissions) => rolePermissions.roles)
-  rolePermissions: RolePermissions | undefined;
+  @OneToMany(() => RolePermissions, (rolePermissions) => rolePermissions.role)
+  rolePermissions: RolePermissions[] | undefined;
 }

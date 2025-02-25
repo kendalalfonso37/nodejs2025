@@ -58,11 +58,11 @@ export class Product {
   })
   deletedAt: Date | undefined;
 
-  @ManyToOne(() => Category, (category) => category.product, {
+  @ManyToOne(() => Category, (category) => category.products, {
     nullable: false,
     onDelete: "RESTRICT",
     onUpdate: "CASCADE"
   })
   @JoinColumn({ name: "category_id" })
-  categories: Category[] | undefined;
+  category: Category | undefined;
 }

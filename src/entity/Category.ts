@@ -45,6 +45,6 @@ export class Category {
   })
   deletedAt: Date | undefined;
 
-  @OneToMany(() => Product, (product) => product.categories)
-  product: Product | undefined;
+  @OneToMany(() => Product, (product) => product.category)
+  products: Product[] | undefined;
 }

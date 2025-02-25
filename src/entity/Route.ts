@@ -58,5 +58,5 @@ export class Route {
     onUpdate: "CASCADE"
   })
   @JoinColumn({ name: "permission_id" })
-  permissions: Permission[] | undefined;
+  permission: Permission | undefined;
 }

@@ -55,11 +55,11 @@ export class Permission {
     onUpdate: "CASCADE"
   })
   @JoinColumn({ name: "group_id" })
-  groups: Group[] | undefined;
+  group: Group | undefined;
 
-  @OneToMany(() => RolePermissions, (rolePermissions) => rolePermissions.roles)
-  rolePermissions: RolePermissions | undefined;
+  @OneToMany(() => RolePermissions, (rolePermissions) => rolePermissions.permission)
+  rolePermissions: RolePermissions[] | undefined;
 
-  @OneToMany(() => Route, (route) => route.permissions)
-  route: Route | undefined;
+  @OneToMany(() => Route, (route) => route.permission)
+  route: Route[] | undefined;
 }

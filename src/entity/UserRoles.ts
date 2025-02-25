@@ -13,7 +13,7 @@ export class UserRoles {
     onUpdate: "CASCADE"
   })
   @JoinColumn({ name: "user_id" })
-  users: User[] | undefined;
+  user: User | undefined;
 
   @ManyToOne(() => Role, (role) => role.userRoles, {
     nullable: false,
@@ -21,5 +21,5 @@ export class UserRoles {
     onUpdate: "CASCADE"
   })
   @JoinColumn({ name: "role_id" })
-  roles: Role[] | undefined;
+  role: Role | undefined;
 }
