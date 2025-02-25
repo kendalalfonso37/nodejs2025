@@ -3,6 +3,7 @@ import { StatusCodes, ReasonPhrases } from "http-status-codes";
 import ErrorException from "../exceptions/ErrorException";
 import logger from "../utils/logger";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
 const errorHandler = (err: any, req: Request, res: Response, next: NextFunction): void => {
   if (err instanceof ErrorException) {
     logger.error({
