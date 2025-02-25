@@ -1,6 +1,10 @@
 import { join } from "path";
 import { DataSource } from "typeorm";
 
+import dotenv from "dotenv";
+
+dotenv.config();
+
 export const myDataSource: DataSource = new DataSource({
   type: "mariadb",
   host: process.env.DB_HOST || "localhost",
