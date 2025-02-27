@@ -8,6 +8,7 @@ import {
   DeleteDateColumn
 } from "typeorm";
 import { UserRoles } from "./UserRoles";
+import { RefreshToken } from "./RefreshToken";
 
 @Entity("users")
 export class User {
@@ -53,4 +54,7 @@ export class User {
 
   @OneToMany(() => UserRoles, (userRoles) => userRoles.user)
   userRoles: UserRoles[] | undefined;
+
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
+  refreshTokens: RefreshToken[] | undefined;
 }
