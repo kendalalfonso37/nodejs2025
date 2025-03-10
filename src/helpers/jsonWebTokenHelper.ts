@@ -8,9 +8,10 @@ const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET || "tu_secreto_refre
 const accessTokenExpiration = parseInt(process.env.ACCESS_TOKEN_EXPIRATION || "600"); // 10 min
 const refreshTokenExpiration = parseInt(process.env.REFRESH_TOKEN_EXPIRATION || "1800"); // 30 min
 
-interface IUserPayload {
+export interface IUserPayload {
   id: number;
   username: string;
+  tokenVersion: number; // Guardamos la tokenVersion utilizado cuando cierra sesion.
   // Otros campos que consideres necesarios
 }
 
@@ -20,4 +21,8 @@ export const generateAccessToken = (user: IUserPayload): string => {
 
 export const generateRefreshToken = (user: IUserPayload): string => {
   return jwt.sign(user, refreshTokenSecret, { expiresIn: refreshTokenExpiration });
+};
+
+export const getRefreshExpirationTime = (): Date => {
+  return new Date(new Date().setSeconds(refreshTokenExpiration));
 };

@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-export {}; // Necesario para que TypeScript trate esto como un módulo
+export {}; // Necesario para que TypeScript trate este archivo como un módulo
 
 declare global {
   namespace Express {

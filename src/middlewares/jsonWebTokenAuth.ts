@@ -2,9 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { getForbidden, getUnauthorized } from "../helpers/httpErrorHelper";
+import logger from "../utils/logger";
+import { myDataSource } from "../app-data-source";
+import { User } from "../entity/User";
+import { IUserPayload } from "../helpers/jsonWebTokenHelper";
 
 dotenv.config();
-const accessTokenSecret: string = process.env.ACCESS_TOKEN_SECRET as string;
+export const accessTokenSecret: string = process.env.ACCESS_TOKEN_SECRET as string;
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -12,17 +16,32 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     const token = authHeader && authHeader.split(" ")[1];
 
     if (!token) {
-      throw getUnauthorized(`No esta autorizado por Chayanne.`); // TODO: CAMBIAR MENSAJE
+      logger.error(`Token de acceso no valido.`);
+      getUnauthorized(res, `Token de acceso no valido.`);
+      return;
     }
 
-    jwt.verify(token, accessTokenSecret, (err, user) => {
+    jwt.verify(token, accessTokenSecret, async (err, user) => {
       if (err) {
-        throw getForbidden("Pues no, mi ciela."); // TODO: CAMBIAR MENSAJE
+        logger.error(`No esta autorizado para acceder a este recurso.`);
+        getForbidden(res, "No esta autorizado para acceder a este recurso.");
+        return;
       }
+
+      // Validar tokenVersion del User
+      const userRepository = myDataSource.getRepository(User);
+      const userFound = await userRepository.findOne({
+        where: { id: (user as IUserPayload).id as number }
+      });
+
+      if (!userFound || userFound.tokenVersion !== (user as IUserPayload).tokenVersion) {
+        return res.status(403).json({ message: "Refresh token inválido." });
+      }
+
       req.user = user;
       next();
     });
   } catch (error) {
-    next(error); // Pasar el error al manejador de errores de Express
+    next(error);
   }
 };

@@ -24,8 +24,8 @@ export class User {
   @Column({ name: "password", type: "text", nullable: false })
   password: string | undefined;
 
-  @Column({ name: "token", type: "text", nullable: true })
-  token: string | undefined;
+  @Column({ name: "tokenVersion", type: "integer", nullable: true })
+  tokenVersion: number | undefined = 0;
 
   @Column({ name: "is_active", type: "boolean", nullable: false, default: () => "1" })
   isActive: boolean | undefined = true;
