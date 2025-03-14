@@ -35,7 +35,7 @@ export const getRoles = async (req: Request, res: Response) => {
 
     res.status(StatusCodes.OK).json(roles);
   } catch (error) {
-    logger.error("Error al obtener roles paginados:", error);
+    logger.error({ message: "Error al obtener roles paginados:", action: "getRoles", error });
     getInternalServerError(res, `Error al obtener la lista de roles.`);
     return;
   }
@@ -55,7 +55,7 @@ export const getRoleDetails = async (req: Request, res: Response) => {
 
     res.status(StatusCodes.OK).json(roleFound);
   } catch (error) {
-    logger.error("Rol no encontrado", error);
+    logger.error({ message: "Rol no encontrado", action: "getRoleDetails", error });
     getNotFound(res, `Rol no encontrado`);
     return;
   }

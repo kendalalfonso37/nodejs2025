@@ -40,7 +40,7 @@ export const getUsers = async (req: Request, res: Response) => {
 
     res.json(users);
   } catch (error) {
-    logger.error("Error al obtener usuarios paginados:", error);
+    logger.error({ message: "Error al obtener usuarios paginados", action: "getUsers", error });
     getInternalServerError(res, `Error al obtener la lista de usuarios.`);
     return;
   }
@@ -63,7 +63,7 @@ export const getUserDetails = async (req: Request, res: Response) => {
 
     res.json(safeUser);
   } catch (error) {
-    logger.error("Usuario no encontrado", error);
+    logger.error({ message: "Usuario no encontrado", action: "getUserDetails", error });
     getNotFound(res, `Usuario no encontrado`);
     return;
   }

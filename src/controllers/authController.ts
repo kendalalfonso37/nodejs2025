@@ -180,7 +180,7 @@ export const logout = async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
 
   if (!token) {
-    logger.error(`Token de acceso no valido.`);
+    logger.error({ message: `Token de acceso no valido.`, action: "logout" });
     getBadRequest(res, `Token de acceso no valido.`);
     return;
   }
@@ -203,7 +203,11 @@ export const logout = async (req: Request, res: Response) => {
 
     refreshTokenRepository.remove(refreshTokenFound);
   } catch (error) {
-    logger.error(`Ocurrio un error al eliminar el refreshToken. ${error}`);
+    logger.error({
+      message: `Ocurrio un error al eliminar el refreshToken.`,
+      action: "logout",
+      error
+    });
     getInternalServerError(res, `Ocurrio un error al eliminar el refreshToken.`);
     return;
   }
@@ -211,7 +215,11 @@ export const logout = async (req: Request, res: Response) => {
   // incrementar tokenResponse aqui para invalidar todos los tokens anteriores del usuario.
   jwt.verify(token, accessTokenSecret, async (err, user) => {
     if (err) {
-      logger.error(`Ocurrio un error al verificar el token.`);
+      logger.error({
+        message: `Ocurrio un error al verificar el token.`,
+        action: "logout",
+        error: err
+      });
       getBadRequest(res, "Ocurrio un error al verificar el token.");
       return;
     }
@@ -234,7 +242,7 @@ export const logout = async (req: Request, res: Response) => {
       // Retornar mensaje de cierre de sesion.
       res.status(StatusCodes.OK).json({ message: `Cierre de sesion exitoso.` });
     } catch (error) {
-      logger.error(`Ocurrio un error al cerrar sesion. ${error}`);
+      logger.error({ message: `Ocurrio un error al cerrar sesion.`, action: "logout", error });
       getInternalServerError(res, `Ocurrio un error al cerrar sesion.`);
       return;
     }
