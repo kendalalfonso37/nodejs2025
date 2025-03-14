@@ -70,7 +70,7 @@ export const getUserDetails = async (req: Request, res: Response) => {
 };
 
 export const createUser = async (req: Request, res: Response) => {
-  logger.info({ message: "Registrando nuevo usuario.", action: "register" });
+  logger.info({ message: "Registrando nuevo usuario.", action: "createUser" });
 
   const userRegisterRequest: UserRegisterRequest = req.body;
   const userRepository = myDataSource.getRepository(User);
@@ -85,7 +85,7 @@ export const createUser = async (req: Request, res: Response) => {
   if (userFound || emailFound) {
     logger.error({
       message: "El usuario o correo ya ha sido registrado previamente.",
-      action: "register"
+      action: "createUser"
     });
     getBadRequest(res, `El usuario o correo ya ha sido registrado previamente.`);
     return;
@@ -105,12 +105,12 @@ export const createUser = async (req: Request, res: Response) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { tokenVersion, password, ...safeUser } = newUser;
 
-    logger.info({ message: `El usuario ha sido creado exitosamente.`, action: "register" });
+    logger.info({ message: `El usuario ha sido creado exitosamente.`, action: "createUser" });
     res
       .status(StatusCodes.CREATED)
       .json({ message: `El usuario ha sido creado exitosamente.`, data: safeUser });
   } catch (error) {
-    logger.error({ message: "Ocurrio un error al crear el usuario", action: "register", error });
+    logger.error({ message: "Ocurrio un error al crear el usuario", action: "createUser", error });
     getInternalServerError(res, `Ocurrio un error al crear el usuario: ${error}`);
     return;
   }
