@@ -7,6 +7,7 @@ import { getPaginatedData, PaginationParams } from "../services/paginationServic
 import { UserRegisterRequest } from "../requests/userRegisterRequest";
 import { generatePassword } from "../helpers/authHelper";
 import { StatusCodes } from "http-status-codes";
+import { UserUpdateRequest } from "../requests/userUpdateRequest";
 
 export const getUsers = async (req: Request, res: Response) => {
   logger.info({ message: "Obteniendo usuarios", action: "getUsers" });
@@ -115,6 +116,106 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
-// updateUser, buscar el user, actualizar username y email, mismas validaciones y misma request que userCreateRequest, devolver mensaje y el user actualizado.
+export const updateUser = async (req: Request, res: Response) => {
+  logger.info({ message: "Obteniendo Detalles del usuario", action: "updateUser" });
 
-// deleteUser, buscar el user, actualizar campo deletedAt y devolver mensaje de actualizacion y el user.
+  const id = req.params.id;
+  const userUpdateRequest: UserUpdateRequest = req.body;
+  const userRepository = myDataSource.getRepository(User);
+
+  const userFound = await userRepository.findOne({ where: { id: Number(id) } });
+  if (!userFound) {
+    logger.error({
+      message: "Usuario no encontrado.",
+      action: "updateUser"
+    });
+    getBadRequest(res, `Usuario no encontrado.`);
+    return;
+  }
+
+  // Buscar que el username y el email no hayan sido registrados previamente:
+  const usernameFound = await userRepository.findOne({
+    where: { username: userUpdateRequest.username }
+  });
+
+  const emailFound = await userRepository.findOne({ where: { email: userUpdateRequest.email } });
+
+  if (
+    (usernameFound && usernameFound.id !== userFound.id) ||
+    (emailFound && emailFound.id !== userFound.id)
+  ) {
+    logger.error({
+      message: "El usuario o correo ya ha sido registrado previamente.",
+      action: "updateUser"
+    });
+    getBadRequest(res, `El usuario o correo ya ha sido registrado previamente.`);
+    return;
+  }
+
+  userFound.username = userUpdateRequest.username;
+  userFound.email = userUpdateRequest.email;
+
+  if (userUpdateRequest.password) {
+    const hashedPassword = await generatePassword(userUpdateRequest.password);
+    userFound.password = hashedPassword;
+  }
+
+  userFound.isActive = userUpdateRequest.isActive;
+
+  try {
+    userFound.updatedAt = new Date();
+    userRepository.save(userFound);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { tokenVersion, password, ...safeUser } = userFound;
+    logger.info({ message: `El usuario ha sido actualizado exitosamente.`, action: "updateUser" });
+    res
+      .status(StatusCodes.OK)
+      .json({ message: `El usuario ha sido actualizado exitosamente.`, data: safeUser });
+  } catch (error) {
+    logger.error({
+      message: "Ocurrio un error al actualizar el usuario",
+      action: "updateUser",
+      error
+    });
+    getInternalServerError(res, `Ocurrio un error al actualizar el usuario: ${error}`);
+    return;
+  }
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+  logger.info({ message: "Obteniendo Detalles del usuario", action: "deleteUser" });
+
+  const id = req.params.id;
+  const userRepository = myDataSource.getRepository(User);
+
+  const userFound = await userRepository.findOne({ where: { id: Number(id) } });
+  if (!userFound) {
+    logger.error({
+      message: "Usuario no encontrado.",
+      action: "deleteUser"
+    });
+    getBadRequest(res, `Usuario no encontrado.`);
+    return;
+  }
+
+  try {
+    userFound.deletedAt = new Date();
+    userRepository.save(userFound);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { tokenVersion, password, ...safeUser } = userFound;
+    logger.info({ message: `El usuario ha sido eliminado exitosamente.`, action: "deleteUser" });
+    res
+      .status(StatusCodes.OK)
+      .json({ message: `El usuario ha sido eliminado exitosamente.`, data: safeUser });
+  } catch (error) {
+    logger.error({
+      message: "Ocurrio un error al eliminar el usuario",
+      action: "deleteUser",
+      error
+    });
+    getInternalServerError(res, `Ocurrio un error al eliminar el usuario: ${error}`);
+    return;
+  }
+};
