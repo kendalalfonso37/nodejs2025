@@ -177,9 +177,9 @@ export const logout = async (req: Request, res: Response) => {
   // recuperar el token de la request.
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-  const { refreshToken } = req.body;
+  const { accessToken, refreshToken } = req.body;
 
-  if (!token) {
+  if (!accessToken) {
     logger.error({ message: `Token de acceso no valido.`, action: "logout" });
     getBadRequest(res, `Token de acceso no valido.`);
     return;
@@ -213,7 +213,7 @@ export const logout = async (req: Request, res: Response) => {
   }
 
   // incrementar tokenResponse aqui para invalidar todos los tokens anteriores del usuario.
-  jwt.verify(token, accessTokenSecret, async (err, user) => {
+  jwt.verify(accessToken, accessTokenSecret, async (err: unknown, user: unknown) => {
     if (err) {
       logger.error({
         message: `Ocurrio un error al verificar el token.`,
