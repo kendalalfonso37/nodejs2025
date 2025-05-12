@@ -3,7 +3,7 @@ import logger from "../utils/logger";
 import { UserRegisterRequest } from "../requests/userRegisterRequest";
 import { User } from "../entity/User";
 import { myDataSource } from "../app-data-source";
-import { getBadRequest, getInternalServerError } from "../helpers/httpErrorHelper";
+import { getBadRequest, getInternalServerError, getUnauthorized } from "../helpers/httpErrorHelper";
 import { StatusCodes } from "http-status-codes";
 import { UserLoginRequest } from "../requests/userLoginRequest";
 import { generatePassword, validatePassword, verifyRefreshToken } from "../helpers/authHelper";
@@ -129,14 +129,14 @@ export const refreshToken = async (req: Request, res: Response) => {
 
   if (!refreshTokenFound) {
     logger.error({ message: "refreshToken no valido.", action: "refreshToken" });
-    getBadRequest(res, `refreshToken no valido.`);
+    getUnauthorized(res, `refreshToken no valido.`);
     return;
   }
 
   // verificar si el refreshToken es valido. (jwt.sign)
-  if (!verifyRefreshToken(refreshToken)) {
+  if (!(await verifyRefreshToken(refreshToken))) {
     logger.error({ message: `refreshToken expirado.`, action: "refreshToken" });
-    getBadRequest(res, `refreshToken expirado.`);
+    getUnauthorized(res, `refreshToken expirado.`);
     return;
   }
 

@@ -1,8 +1,9 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import logger from "../utils/logger";
 
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS as string) || 12;
-const accessTokenSecret: string = process.env.ACCESS_TOKEN_SECRET as string;
+const refreshTokenSecret: string = process.env.REFRESH_TOKEN_SECRET as string;
 
 export const generatePassword = async (password: string): Promise<string> => {
   return await bcrypt.hash(password, saltRounds);
@@ -16,11 +17,15 @@ export const validatePassword = async (
   return result;
 };
 
-export const verifyRefreshToken = async (refreshToken: string) => {
-  jwt.verify(refreshToken, accessTokenSecret, (err) => {
-    if (err) {
-      return false;
+export const verifyRefreshToken = async (refreshToken: string): Promise<boolean> => {
+  try {
+    const decoded = jwt.verify(refreshToken, refreshTokenSecret) as JwtPayload;
+    if (decoded) {
+      return true; // Devuelve el payload si es válido y no ha expirado
     }
-    return true;
-  });
+    return false;
+  } catch (err) {
+    logger.error(`Error verificando refreshToken: ${err}`);
+    return false; // Token inválido o expirado
+  }
 };
