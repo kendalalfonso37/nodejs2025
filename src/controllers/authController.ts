@@ -185,8 +185,6 @@ export const refreshToken = async (req: Request, res: Response) => {
 
 export const logout = async (req: Request, res: Response) => {
   // recuperar el token de la request.
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
   const { accessToken, refreshToken } = req.body;
 
   if (!accessToken) {
