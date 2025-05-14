@@ -84,6 +84,16 @@ export const login = async (req: Request, res: Response) => {
     return;
   }
 
+  // Validar si el usuario esta activo:
+  if (!userFound.isActive) {
+    logger.error({
+      message: "Usuario desactivado, , no se puede iniciar sesion.",
+      action: "login"
+    });
+    getBadRequest(res, `Usuario desactivado, no se puede iniciar sesion.`);
+    return;
+  }
+
   // Crear el payload para el Json Web Token
   const userPayload: IUserPayload = {
     id: userFound.id as number,
