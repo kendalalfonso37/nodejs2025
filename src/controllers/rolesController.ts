@@ -19,7 +19,7 @@ export const getRoles = async (req: Request, res: Response) => {
     const paginationParams: PaginationParams<Role> = {
       page: Number(page) || undefined,
       records: Number(records) || undefined,
-      sortBy: sortBy as keyof Role, // Acepta cualquier campo de User
+      sortBy: sortBy as keyof Role, // Acepta cualquier campo de Role
       sortOrder: sortOrder as "ASC" | "DESC",
       search: search as string,
       filters: filters ? JSON.parse(filters as string) : undefined
@@ -76,7 +76,7 @@ export const createRole = async (req: Request, res: Response) => {
     });
 
     await roleRepository.save(newRole);
-    logger.info({ message: `El usuario ha sido creado exitosamente.`, action: "createRole" });
+    logger.info({ message: `El rol ha sido creado exitosamente.`, action: "createRole" });
     res.status(StatusCodes.OK).json(newRole);
   } catch (error) {
     logger.error({ message: "Ocurrio un error al crear el rol", action: "createRole", error });
