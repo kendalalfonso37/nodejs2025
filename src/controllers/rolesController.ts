@@ -71,7 +71,8 @@ export const createRole = async (req: Request, res: Response) => {
 
     const newRole = roleRepository.create({
       name: roleCreateRequest.name,
-      description: roleCreateRequest.description
+      description: roleCreateRequest.description,
+      isActive: roleCreateRequest.isActive
     });
 
     await roleRepository.save(newRole);
