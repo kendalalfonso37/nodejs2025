@@ -821,7 +821,7 @@
 					"response": []
 				},
 				{
-					"name": "delete role permisos",
+					"name": "get roles activos",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -833,19 +833,10 @@
 								}
 							]
 						},
-						"method": "DELETE",
+						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "localhost:8000/api/roles/1/permisos/1",
+							"raw": "localhost:8000/api/roles/activos",
 							"host": [
 								"localhost"
 							],
@@ -853,9 +844,7 @@
 							"path": [
 								"api",
 								"roles",
-								"1",
-								"permisos",
-								"1"
+								"activos"
 							]
 						}
 					},
@@ -1067,6 +1056,66 @@
 								"api",
 								"permisos",
 								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get permisos activos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8000/api/permisos/activos",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"permisos",
+								"activos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get permisos activos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8000/api/permisos/activos",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"permisos",
+								"activos"
 							]
 						}
 					},
