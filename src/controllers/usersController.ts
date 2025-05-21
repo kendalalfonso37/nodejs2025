@@ -8,6 +8,9 @@ import { UserRegisterRequest } from "../requests/userRegisterRequest";
 import { generatePassword } from "../helpers/authHelper";
 import { StatusCodes } from "http-status-codes";
 import { UserUpdateRequest } from "../requests/userUpdateRequest";
+import { UserRoles } from "../entity/UserRoles";
+import { In } from "typeorm";
+import { Role } from "../entity/Role";
 
 export const getUsers = async (req: Request, res: Response) => {
   logger.info({ message: "Obteniendo usuarios", action: "getUsers" });
@@ -216,6 +219,162 @@ export const deleteUser = async (req: Request, res: Response) => {
       error
     });
     getInternalServerError(res, `Ocurrio un error al eliminar el usuario: ${error}`);
+    return;
+  }
+};
+
+export const getUserRoles = async (req: Request, res: Response) => {
+  logger.info({ message: "Obteniendo roles del usuario", action: "getUserRoles" });
+
+  const id = req.params.id;
+
+  const userRepository = myDataSource.getRepository(User);
+
+  const userFound = await userRepository.findOne({
+    where: { id: Number(id) },
+    relations: { userRoles: { role: true } }
+    // select: {
+    //   userRoles: {
+    //     id: true,
+    //     role: {
+    //       id: true,
+    //       name: true,
+    //       isActive: true,
+    //       description: true,
+    //       createdAt: true,
+    //       updatedAt: true,
+    //       deletedAt: true
+    //     }
+    //   }
+    // }
+  });
+
+  if (!userFound) {
+    logger.error({ message: "Usuario no encontrado", action: "getUserRoles" });
+    getNotFound(res, `Usuario no encontrado`);
+    return;
+  }
+
+  res.json(userFound.userRoles);
+  return;
+};
+
+export const assignUserRoles = async (req: Request, res: Response) => {
+  logger.info({ message: "Asignando roles al usuario", action: "assignUserRoles" });
+
+  const userId = Number(req.params.id);
+  const { roleIds } = req.body;
+
+  if (!roleIds || roleIds.length === 0) {
+    logger.error({
+      message: "No se han proporcionado roles para asignar al usuario.",
+      action: "assignUserRoles"
+    });
+    getBadRequest(res, `No se han proporcionado roles para asignar al usuario.`);
+    return;
+  }
+
+  try {
+    const userRepository = myDataSource.getRepository(User);
+    const roleRepository = myDataSource.getRepository(Role);
+    const userRolesRepository = myDataSource.getRepository(UserRoles);
+
+    const user = await userRepository.findOneBy({ id: userId });
+    if (!user) {
+      logger.error({ message: "Usuario no encontrado", action: "assignUserRoles" });
+      getBadRequest(res, "Usuario no encontrado.");
+      return;
+    }
+
+    // 1. Borrar relaciones anteriores
+    await userRolesRepository.delete({ user: { id: userId } });
+
+    // 2. Buscar roles válidos
+    // Usamos In para buscar todos los roles que coincidan con los IDs proporcionados
+    const roles = await roleRepository.find({
+      where: { id: In(roleIds) },
+      select: { id: true, name: true, description: true, isActive: true }
+    });
+
+    // 3. Crear nuevas relaciones UserRoles
+    const nuevasRelaciones = roles.map((rol) => {
+      const userRole = new UserRoles();
+      userRole.user = user;
+      userRole.role = rol;
+      return userRole;
+    });
+
+    // 4. Guardar nuevas relaciones
+    await userRolesRepository.save(nuevasRelaciones);
+
+    logger.info({
+      message: `Roles actualizados exitosamente`,
+      action: "assignUserRoles"
+    });
+
+    res.status(StatusCodes.OK).json({
+      message: "Roles asignados correctamente al usuario",
+      data: {
+        userId,
+        roles: roleIds
+      }
+    });
+  } catch (error) {
+    logger.error({
+      message: "Error al asignar roles",
+      action: "assignUserRoles",
+      error
+    });
+    getInternalServerError(res, `Ocurrió un error: ${error}`);
+    return;
+  }
+};
+
+export const removeUserRole = async (req: Request, res: Response) => {
+  logger.info({ message: "Eliminando rol de usuario", action: "deleteUserRole" });
+
+  const userId = Number(req.params.id);
+  const roleId = Number(req.params.roleId);
+
+  try {
+    const userRolesRepository = myDataSource.getRepository(UserRoles);
+
+    // Buscar la relación exacta
+    const relacion = await userRolesRepository.findOne({
+      where: {
+        user: { id: userId },
+        role: { id: roleId }
+      },
+      relations: ["user", "role"]
+    });
+
+    if (!relacion) {
+      logger.warn({
+        message: `No existe la relación entre el usuario ${userId} y el rol ${roleId}`,
+        action: "deleteUserRole"
+      });
+      getNotFound(res, "Relación usuario-rol no encontrada");
+      return;
+    }
+
+    await userRolesRepository.remove(relacion);
+
+    logger.info({
+      message: `Rol ${roleId} eliminado exitosamente del usuario ${userId}`,
+      action: "deleteUserRole"
+    });
+
+    res.status(200).json({
+      message: "Rol eliminado del usuario"
+    });
+    return;
+  } catch (error) {
+    logger.error({
+      message: "Error al eliminar rol del usuario",
+      action: "deleteUserRole",
+      error
+    });
+    getInternalServerError(res, `Error al eliminar el rol del usuario: ${error}`);
     return;
   }
 };
