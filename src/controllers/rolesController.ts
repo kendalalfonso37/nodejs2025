@@ -7,6 +7,9 @@ import { StatusCodes } from "http-status-codes";
 import { Role } from "../entity/Role";
 import { RoleCreateRequest } from "../requests/roleCreateRequest";
 import { RoleUpdateRequest } from "../requests/roleUpdateRequest";
+import { Permission } from "../entity/Permission";
+import { RolePermissions } from "../entity/RolePermissions";
+import { In } from "typeorm";
 
 export const getRoles = async (req: Request, res: Response) => {
   logger.info({ message: "Obteniendo roles", action: "getRoles" });
@@ -153,6 +156,144 @@ export const deleteRole = async (req: Request, res: Response) => {
       error
     });
     getInternalServerError(res, `Ocurrio un error al eliminar el rol: ${error}`);
+    return;
+  }
+};
+
+export const getRolePermissions = async (req: Request, res: Response) => {
+  logger.info({ message: "Obteniendo permisos asociados al rol", action: "getRolePermissions" });
+
+  const id = req.params.id;
+  const roleRepository = myDataSource.getRepository(Role);
+
+  const roleFound = await roleRepository.findOne({
+    where: { id: Number(id) },
+    relations: { rolePermissions: { permission: true } }
+  });
+
+  if (!roleFound) {
+    logger.error({ message: "Rol no encontrado", action: "getRolePermissions" });
+    getNotFound(res, "Rol no encontrado");
+    return;
+  }
+
+  res.json(roleFound.rolePermissions);
+};
+
+export const assignRolePermissions = async (req: Request, res: Response) => {
+  logger.info({ message: "Asignando permisos al rol", action: "assignRolePermissions" });
+  const roleId = Number(req.params.id);
+
+  const { permissionIds } = req.body;
+
+  if (!permissionIds || permissionIds.length === 0) {
+    logger.error({
+      message: "No se han proporcionado permisos para asignar al rol.",
+      action: "assignRolePermissions"
+    });
+    getBadRequest(res, "No se han proporcionado permisos para asignar al rol.");
+    return;
+  }
+
+  try {
+    const roleRepository = myDataSource.getRepository(Role);
+    const permissionRepository = myDataSource.getRepository(Permission);
+    const rolePermissionRepository = myDataSource.getRepository(RolePermissions);
+
+    const role = await roleRepository.findOneBy({ id: roleId });
+    if (!role) {
+      logger.error({ message: "rol no encontrado", action: "assignRolePermissions" });
+      getBadRequest(res, "Rol no encontrado.");
+      return;
+    }
+
+    // 1. Borrar relaciones anteriores
+    await rolePermissionRepository.delete({ role: { id: roleId } });
+
+    // 2. Buscar roles válidos
+    // Usamos In para buscar todos los roles que coincidan con los IDs proporcionados
+    const permissions = await permissionRepository.find({
+      where: { id: In(permissionIds) },
+      select: { id: true, name: true, description: true, isActive: true }
+    });
+
+    // 3 Crear nuevas relaciones RolePermission
+    const nuevasRelaciones = permissions.map((permission) => {
+      const rolePermission = new RolePermissions();
+      rolePermission.permission = permission;
+      rolePermission.role = role;
+      return rolePermission;
+    });
+
+    // 4. Guardar nuevas relaciones
+    await rolePermissionRepository.save(nuevasRelaciones);
+
+    logger.info({
+      message: "Permisos actualizados exitosamente.",
+      action: "assignRolePermissions"
+    });
+
+    res.status(StatusCodes.OK).json({
+      message: "Permisos asignados correctamente al rol.",
+      data: {
+        roleId,
+        permissions: permissionIds
+      }
+    });
+  } catch (error) {
+    logger.error({
+      message: "Error al asignar permisos",
+      action: "assignRolePermissions",
+      error
+    });
+    getInternalServerError(res, `Ocurrió un error: ${error}`);
+    return;
+  }
+};
+
+export const removeRolePermission = async (req: Request, res: Response) => {
+  logger.info({ message: "Eliminando Permiso al Rol.", action: "removeRolePermission" });
+
+  const roleId = Number(req.params.id);
+  const permissionId = Number(req.params.permissionId);
+
+  try {
+    const rolePermissionRepository = myDataSource.getRepository(RolePermissions);
+
+    // Buscar la relacion exacta
+    const relacion = await rolePermissionRepository.findOne({
+      where: {
+        role: { id: roleId },
+        permission: { id: permissionId }
+      },
+      relations: ["role", "permission"]
+    });
+
+    if (!relacion) {
+      logger.warn({
+        message: `No existe la relación entre el role ${roleId} y el permiso ${permissionId}`,
+        action: "removeRolePermission"
+      });
+      getNotFound(res, "Relación rol-permiso no encontrada");
+      return;
+    }
+
+    await rolePermissionRepository.remove(relacion);
+
+    logger.info({
+      message: `Permiso ${permissionId} eliminado exitosamente del rol ${roleId}`,
+      action: "removeRolePermission"
+    });
+
+    res.status(StatusCodes.OK).json({ message: "Permiso eliminado del rol" });
+    return;
+  } catch (error) {
+    logger.error({
+      message: "Error al eliminar permiso del rol",
+      action: "removeRolePermission",
+      error
+    });
+    getInternalServerError(res, `Error al eliminar el permiso del rol: ${error}`);
     return;
   }
 };

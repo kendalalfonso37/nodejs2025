@@ -364,7 +364,7 @@ export const removeUserRole = async (req: Request, res: Response) => {
       action: "deleteUserRole"
     });
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
       message: "Rol eliminado del usuario"
     });
     return;
