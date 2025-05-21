@@ -188,3 +188,27 @@ export const deletePermiso = async (req: Request, res: Response) => {
     return;
   }
 };
+
+export const getAllActivePermissions = async (req: Request, res: Response) => {
+  logger.info({
+    message: "Obteniendo todos los permisos activos",
+    action: "getAllActivePermissions"
+  });
+
+  try {
+    const permisoRepository = myDataSource.getRepository(Permission);
+    const permisos = await permisoRepository.find({
+      where: { isActive: true },
+      order: { name: "ASC" } // opcional
+    });
+
+    res.status(StatusCodes.OK).json({ data: permisos });
+  } catch (error) {
+    logger.error({
+      message: "Error al obtener todos los permisos activos",
+      action: "getAllActivePermissions",
+      error
+    });
+    getInternalServerError(res, "Error al obtener permisos activos.");
+  }
+};

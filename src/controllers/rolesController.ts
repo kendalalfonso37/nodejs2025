@@ -297,3 +297,24 @@ export const removeRolePermission = async (req: Request, res: Response) => {
     return;
   }
 };
+
+export const getAllActiveRoles = async (req: Request, res: Response) => {
+  logger.info({ message: "Obteniendo todos los roles activos", action: "getAllActiveRoles" });
+
+  try {
+    const roleRepository = myDataSource.getRepository(Role);
+    const roles = await roleRepository.find({
+      where: { isActive: true },
+      order: { name: "ASC" } // opcional
+    });
+
+    res.status(StatusCodes.OK).json({ data: roles });
+  } catch (error) {
+    logger.error({
+      message: "Error al obtener todos los roles activos",
+      action: "getAllActiveRoles",
+      error
+    });
+    getInternalServerError(res, "Error al obtener roles activos.");
+  }
+};

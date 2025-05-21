@@ -4,6 +4,7 @@ import {
   assignRolePermissions,
   createRole,
   deleteRole,
+  getAllActiveRoles,
   getRoleDetails,
   getRolePermissions,
   getRoles,
@@ -13,6 +14,7 @@ import {
 
 const router = Router();
 
+router.get("/activos", authenticateToken, getAllActiveRoles);
 router.get("/", authenticateToken, getRoles);
 router.get("/:id", authenticateToken, getRoleDetails);
 router.post("/", authenticateToken, createRole);
