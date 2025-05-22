@@ -10,6 +10,7 @@ import {
 
 const router = Router();
 
+router.get("/activos", authenticateToken, getGroups);
 router.get("/", authenticateToken, getGroups);
 router.get("/:id", authenticateToken, getGroupDetails);
 router.post("/", authenticateToken, createGroup);

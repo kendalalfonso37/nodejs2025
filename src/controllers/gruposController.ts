@@ -156,3 +156,24 @@ export const deleteGroup = async (req: Request, res: Response) => {
     return;
   }
 };
+
+export const getAllActiveGroups = async (req: Request, res: Response) => {
+  logger.info({ message: "Obteniendo todos los grupos activos", action: "getAllActiveGroups" });
+
+  try {
+    const groupRepository = myDataSource.getRepository(Group);
+    const groups = await groupRepository.find({
+      where: { isActive: true },
+      order: { name: "ASC" } // opcional
+    });
+
+    res.status(StatusCodes.OK).json({ data: groups });
+  } catch (error) {
+    logger.error({
+      message: "Error al obtener todos los grupos activos",
+      action: "getAllActiveGroups",
+      error
+    });
+    getInternalServerError(res, "Error al obtener grupos activos.");
+  }
+};
