@@ -119,15 +119,19 @@ export const updatePermiso = async (req: Request, res: Response) => {
     return;
   }
 
-  // Validar si el grupo existe.
-  const grupoRepository = myDataSource.getRepository(Group);
-  const grupoFound = await grupoRepository.findOneBy({
-    id: Number(permisoUpdateRequest.groupId)
-  });
-  if (!grupoFound) {
-    logger.error({ message: "Grupo no encontrado", action: "updatePermiso" });
-    getBadRequest(res, `Grupo no encontrado.`);
-    return;
+  // Posible cambio de grupo. verificar
+  let grupoFound;
+  if (permisoUpdateRequest.groupId) {
+    // Validar si el grupo existe.
+    const grupoRepository = myDataSource.getRepository(Group);
+    grupoFound = await grupoRepository.findOneBy({
+      id: Number(permisoUpdateRequest.groupId)
+    });
+    if (!grupoFound) {
+      logger.error({ message: "Grupo no encontrado", action: "updatePermiso" });
+      getBadRequest(res, `Grupo no encontrado.`);
+      return;
+    }
   }
 
   try {
@@ -137,7 +141,7 @@ export const updatePermiso = async (req: Request, res: Response) => {
       : permisoFound.description;
     permisoFound.isActive = permisoUpdateRequest.isActive;
     permisoFound.updatedAt = new Date();
-    permisoFound.group = grupoFound;
+    permisoFound.group = grupoFound ?? permisoFound.group;
 
     permisoRepository.save(permisoFound);
     logger.info({
