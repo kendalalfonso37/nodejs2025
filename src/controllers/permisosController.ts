@@ -47,19 +47,20 @@ export const getPermisoDetails = async (req: Request, res: Response) => {
 
   const id = req.params.id;
 
-  try {
-    const permisoRepository = myDataSource.getRepository(Permission);
+  const permisoRepository = myDataSource.getRepository(Permission);
 
-    const permisoFound = await permisoRepository.findOneByOrFail({
-      id: Number(id)
-    });
+  const permisoFound = await permisoRepository.find({
+    where: { id: Number(id) },
+    relations: { group: true }
+  });
 
-    res.status(StatusCodes.OK).json(permisoFound);
-  } catch (error) {
-    logger.error({ message: "Permiso no encontrado", action: "getPermisoDetails", error });
-    getNotFound(res, `Permiso no encontrado`);
+  if (permisoFound.length === 0) {
+    logger.error({ message: `Permiso no encontrado`, action: "getPermisoDetails" });
+    getNotFound(res, "Permiso no encontrado");
     return;
   }
+
+  res.status(StatusCodes.OK).json(permisoFound[0]);
 };
 
 export const createPermiso = async (req: Request, res: Response) => {
@@ -199,7 +200,8 @@ export const getAllActivePermissions = async (req: Request, res: Response) => {
     const permisoRepository = myDataSource.getRepository(Permission);
     const permisos = await permisoRepository.find({
       where: { isActive: true },
-      order: { name: "ASC" } // opcional
+      order: { name: "ASC" }, // opcional
+      relations: { group: true }
     });
 
     res.status(StatusCodes.OK).json({ data: permisos });
